@@ -32,7 +32,7 @@ client.on('messageCreate', async (message) => {
     const client = new scheduler.CloudSchedulerClient();
     const schedule = new Date();
 
-    schedule.setHours(schedule.getHours() + 2);
+    schedule.setMinutes(schedule.getMinutes() + 120);
 
     await client.updateJob({
       job: {

@@ -201,7 +201,7 @@ module.exports = async function(interaction) {
 
   output += startDate.getDate() + (ordinals[startDate.getDate().toString().split('').pop()]) + " of " + months[startDate.getMonth()];
 
-  output += " to yesterday, the ";
+  output += " to the ";
 
   output += endDate.getDate() + (ordinals[endDate.getDate().toString().split('').pop()]) + " of " + months[endDate.getMonth()];
 
