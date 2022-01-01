@@ -1,7 +1,7 @@
 {
   "scripts": {
     "deploy" : "gcloud functions deploy gruebot --runtime=nodejs16 --trigger-http --env-vars-file=secrets.yaml",
-    "run" : "forever start --uid=gruebot bot.js"
+    "start" : "forever start --uid=gruebot bot.js"
   },
   "dependencies": {
     "@google-cloud/scheduler": "^2.3.0",

@@ -29,17 +29,24 @@ module.exports = async function(interaction) {
 
   const channel = await interaction.guild.channels.fetch("788633174807805962");
 
-  var yesterday = new Date();
+  if (interaction.options.getString('start')) {
+    var startDate = new Date(interaction.options.getString('start'));
+  } else {
+    var startDate = new Date();
 
-  yesterday.setDate(yesterday.getDate() - 1);
+    startDate.setDate(startDate.getDate() - startDate.getDay() - 1);
+  }
 
-  var lastSaturday = new Date();
+  if (interaction.options.getString('end')) {
+    var endDate = new Date(interaction.options.getString('end'));
+  } else {
+    var endDate = new Date();
 
-  lastSaturday.setDate(lastSaturday.getDate() - lastSaturday.getDay() - 1);
+    startDate.setDate(startDate.getDate() - 1);
+  }
 
-  // this is ugly and i hate it, how do timezones work?????
-  var startTimestamp = Date.UTC(lastSaturday.getFullYear(), lastSaturday.getMonth(), lastSaturday.getDate(), 10, 0, 0, 0);
-  var endTimestamp = Date.UTC(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 17, 0, 0, 0);
+  var startTimestamp = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0, 0);
+  var endTimestamp = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999);
 
   var availableBumps = [];
   var bumps = [];
@@ -190,13 +197,13 @@ module.exports = async function(interaction) {
     }
   }
 
-  var output = "Since last Saturday, the ";
+  var output = "Since the ";
 
-  output += lastSaturday.getDate() + (ordinals[lastSaturday.getDate().toString().split('').pop()]) + " of " + months[lastSaturday.getMonth()];
+  output += startDate.getDate() + (ordinals[startDate.getDate().toString().split('').pop()]) + " of " + months[startDate.getMonth()];
 
   output += " to yesterday, the ";
 
-  output += yesterday.getDate() + (ordinals[yesterday.getDate().toString().split('').pop()]) + " of " + months[yesterday.getMonth()];
+  output += endDate.getDate() + (ordinals[endDate.getDate().toString().split('').pop()]) + " of " + months[endDate.getMonth()];
 
   output += "\r\n\r\n";
 

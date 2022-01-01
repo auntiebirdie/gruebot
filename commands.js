@@ -5,8 +5,20 @@ const fs = require('fs');
 const secrets = yaml.load(fs.readFileSync(`${__dirname}/secrets.yaml`, 'utf8'));
 
 const commands = [{
-  name: "summon",
-  description: "Summon the grue.",
+      name: "summon",
+      description: "Summon the grue.",
+      options: [{
+      "name": "start",
+      "description": "Start date defaults to last Saturday",
+      "type": 3
+    },
+    {
+      "name": "end",
+      "description": "End date defaults to yesterday",
+      "type": 3
+    }
+
+  ],
   default_permission: false,
   permissions: [{
     id: "922956415134470155",
