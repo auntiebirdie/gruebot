@@ -80,7 +80,7 @@ client.on('ready', async () => {
 
   do {
     await channel.messages.fetch({
-      limit: 100,
+      limit: 10,
       before: beforeId
     }).then((results) => {
       page = results.size;
@@ -88,19 +88,17 @@ client.on('ready', async () => {
       if (page > 0) {
         results.each((result) => {
           if (result.author.id == "302050872383242240" && result.embeds.length > 0 && result.embeds[0].description.includes('Bump done!')) {
-            lastBump = result;
-            return true;
+            if (!lastBump || lastBump.createdTimestamp < result.createdTimestamp) {
+              lastBump = result;
+            }
           }
         });
       }
     });
   } while (!lastBump && page > 0);
 
-console.log(lastBump);
-
   if (lastBump) {
-
-          lastBump.react('🔔');
+    lastBump.react('🔔');
 
     const client = new scheduler.CloudSchedulerClient();
     const schedule = new Date(lastBump.createdTimestamp);
@@ -124,7 +122,7 @@ console.log(lastBump);
     });
   }
 
-	console.log('a grue is online!');
+  console.log('a grue is online!');
 });
 
 module.exports = client;
