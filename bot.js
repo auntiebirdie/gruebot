@@ -58,11 +58,11 @@ client.on('messageCreate', async (message) => {
         }
       });
     } else if (message.embeds[0].description.includes("Please wait")) {
-      if (Math.random() * 100 > 90) {
+      if (Math.random() * 100 > 85) {
         var responses = Object.values(mockeries.data);
 
         message.reply({
-          content: responses.sort(() => (Math.random() > .5) ? 1 : -1)[0]
+          content: responses.sort(() => (Math.random() > .5) ? 1 : -1)[0].text
         });
       }
     }
