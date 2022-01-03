@@ -5,9 +5,9 @@ const fs = require('fs');
 const secrets = yaml.load(fs.readFileSync(`${__dirname}/secrets.yaml`, 'utf8'));
 
 const commands = [{
-      name: "summon",
-      description: "Summon the grue.",
-      options: [{
+  name: "summon",
+  description: "Summon the grue.",
+  options: [{
       "name": "start",
       "description": "Start date defaults to last Saturday",
       "type": 3
@@ -17,7 +17,6 @@ const commands = [{
       "description": "End date defaults to yesterday",
       "type": 3
     }
-
   ],
   default_permission: false,
   permissions: [{
@@ -28,6 +27,64 @@ const commands = [{
     id: "907692992058511370",
     type: 1,
     permission: true
+  }]
+}, {
+  name: "configure",
+  description: "Tell the grue what to do.",
+  options: [{
+    name: "mockery",
+    description: "huehuehue",
+    type: 2,
+    options: [{
+      name: "list",
+      description: "View the list of mockeries",
+      type: 1
+    }, {
+      name: "remove",
+      description: "Remove a mockery",
+      type: 1,
+      options: [{
+        "name": "id",
+        "description": "The ID of the mockery to remove",
+        "type": 3,
+        "required": true
+      }]
+    }, {
+      name: "add",
+      description: "Add a new mockery",
+      type: 1,
+      options: [{
+        "name": "text",
+        "description": "The text you want to mock with",
+        "type": 3,
+        "required": true
+      }]
+    }, {
+      name: "edit",
+      description: "Edit a mockery",
+      type: 1,
+      options: [{
+        "name": "id",
+        "description": "The ID of the mockery to edit",
+        "type": 3,
+        "required": true
+      }, {
+        "name": "text",
+        "description": "The new text you want to mock with",
+        "type": 3,
+        "required": true
+      }]
+    }],
+    default_permission: false,
+    permissions: [{
+      id: "922956415134470155",
+      type: 1,
+      permission: true
+    }, {
+      id: "907692992058511370",
+      type: 1,
+      permission: true
+    }]
   }]
 }];
 

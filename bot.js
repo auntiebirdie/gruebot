@@ -4,6 +4,13 @@ const fs = require('fs');
 
 const secrets = yaml.load(fs.readFileSync(`${__dirname}/secrets.yaml`, 'utf8'));
 
+const microdb = require('nodejs-microdb');
+const mockeries = new microdb({
+  'file': `${__dirname}/db/mockery.json`,
+  'savetime': 0,
+  'datatype': 1
+});
+
 const {
   Client,
   Intents
@@ -52,15 +59,10 @@ client.on('messageCreate', async (message) => {
       });
     } else if (message.embeds[0].description.includes("Please wait")) {
       if (Math.random() * 100 > 90) {
-        var responses = [
-          "*hehehe*",
-          "so close...",
-          "try again!",
-          "hurry!  there's still time!"
-        ];
+        var responses = Object.values(mockeries.data);
 
         message.reply({
-          content: responses.sort(() => (Math.random() > .5) ? 1 : -1)
+          content: responses.sort(() => (Math.random() > .5) ? 1 : -1)[0]
         });
       }
     }
