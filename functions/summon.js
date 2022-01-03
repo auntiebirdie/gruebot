@@ -69,7 +69,8 @@ module.exports = async function(interaction) {
       if (page > 0) {
         results.each((result) => {
           if (result.createdTimestamp <= endTimestamp && result.createdTimestamp >= startTimestamp) {
-            if (result.author.id == "735147814878969968" || (result.author.id == interaction.client.user.id && result.content.includes('THE BUMP IS AVAILABLE ONCE MORE'))) {
+		  // todo: clean up
+            if (result.author.id == "735147814878969968" || (result.author.id == interaction.client.user.id && (result.content.includes('THE BUMP IS AVAILABLE ONCE MORE') || result.content.includes("the bump is coming")))) {
               availableBumps.push(result.createdTimestamp);
             } else if (result.author.id == "302050872383242240" && result.embeds?.length > 0) {
               let id = availableBumps.length;
