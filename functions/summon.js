@@ -48,6 +48,7 @@ module.exports = async function(interaction) {
   var startTimestamp = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0, 0);
   var endTimestamp = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999);
 
+  var auditLog = [];
   var availableBumps = [];
   var bumps = [];
   var firstBump = [Infinity, null];
@@ -69,9 +70,11 @@ module.exports = async function(interaction) {
       if (page > 0) {
         results.each((result) => {
           if (result.createdTimestamp <= endTimestamp && result.createdTimestamp >= startTimestamp) {
-		  // todo: clean up
-            if (result.author.id == "735147814878969968" || (result.author.id == interaction.client.user.id && (result.content.includes('THE BUMP IS AVAILABLE ONCE MORE') || result.content.includes("the bump is coming")))) {
+            if (result.author.id == "735147814878969968") {
+		    availableBumps.push(result.createdTimestamp);
+	    } else if (result.author.id == interaction.client.user.id && (result.content.includes('THE BUMP IS AVAILABLE ONCE MORE') || result.content.includes("the bump is coming"))) {
               availableBumps.push(result.createdTimestamp);
+	      auditLog.push(new Date(result.createdTimestamp), result.author.displayName,
             } else if (result.author.id == "302050872383242240" && result.embeds?.length > 0) {
               let id = availableBumps.length;
               let content = result.embeds[0].description;
@@ -148,7 +151,7 @@ module.exports = async function(interaction) {
   while (page > 0 && lastTimestamp >= startTimestamp);
 
   for (let id in availableBumps) {
-    if (bumps[id].length > 0) {
+    if (bumps[id] && bumps[id].length > 0) {
       let selfDoubleBumped = false;
 
       for (let bump of bumps[id]) {

@@ -58,7 +58,7 @@ client.on('messageCreate', async (message) => {
         }
       });
     } else if (message.embeds[0].description.includes("Please wait")) {
-      if (Math.random() * 100 > 85) {
+      if (Math.random() * 100 > 75) {
         var responses = Object.values(mockeries.data);
 
         message.reply({
