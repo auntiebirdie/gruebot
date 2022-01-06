@@ -59,12 +59,12 @@ client.on('messageCreate', async (message) => {
       });
     } else if (message.embeds[0].description.includes("Please wait")) {
       if (Math.random() * 100 > 75) {
-        var responses = Object.values(mockeries.data);
-
-        message.reply({
-          content: responses.sort(() => (Math.random() > .5) ? 1 : -1)[0].text
-        });
+        require(`./functions/mock.js`)(message);
       }
+    }
+  } else if (message.channel.id == "788633174807805962" || message.channel.id == "788633095318405120") {
+    if (message.content.toLowerCase().includes("mock me")) {
+      require(`./functions/mock.js`)(message);
     }
   }
 });
