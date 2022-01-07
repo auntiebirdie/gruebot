@@ -82,7 +82,7 @@ module.exports = async function(interaction) {
 
               if (content.includes('Bump done!')) {
                 if (user) {
-                  let bump = {
+                  var bump = {
                     id: result.id,
                     user: user[1],
                     timestamp: result.createdTimestamp,
@@ -105,7 +105,7 @@ module.exports = async function(interaction) {
                   throw err;
                 }
               } else if (content.includes("I'm handling your command! :rage:")) {
-                let bump = bumps[id][bumps[id].length - 1];
+                var bump = bumps[id][bumps[id].length - 1];
 
                 // if they are less than 2 seconds apart
                 if (Math.abs(bump.timestamp - result.createdTimestamp) < 2000) {
@@ -113,7 +113,7 @@ module.exports = async function(interaction) {
                   brokenDoubleBump = bump.user;
                 }
               } else if (content.includes("Please wait another 120 minutes")) {
-                let bump = {
+                var bump = {
                   id: result.id,
                   user: user[1],
                   timestamp: result.createdTimestamp,
@@ -122,7 +122,7 @@ module.exports = async function(interaction) {
 
                 bumps[id].push(bump);
               } else if (brokenDoubleBump && result.content.toLowerCase().trim() == '!d bump' && brokenDoubleBump != result.author.id) {
-                let bump = {
+                var bump = {
                   id: result.id,
                   user: result.author.id,
                   timestamp: result.createdTimestamp,
@@ -147,9 +147,7 @@ module.exports = async function(interaction) {
 
   var auditLog = "";
 
-  availableBumps = availableBumps.reverse();
-
-  for (let id in availableBumps) {
+  for (let id = availableBumps.length - 1; id >= 0; id--) {
     auditLog += `💀 ${new Date(availableBumps[id]).toUTCString()} 💀\r\n\r\n`
 
     if (bumps[id] && bumps[id].length > 0) {
@@ -192,7 +190,6 @@ module.exports = async function(interaction) {
 
         if (bump.success) {
           if (bump.id == firstBump[1] || bump.id == lastBump[1]) {
-		  console.log(firstBump, lastBump, bump.id);
             if (bump.id == firstBump[1]) {
               users[bump.user].achievements.push('first bump');
               auditLog += "   2X FIRST BUMP BONUS\r\n";
@@ -212,11 +209,11 @@ module.exports = async function(interaction) {
     }
   }
 
-  var output = "Since ";
+  var output = "Since the ";
 
   output += startDate.getUTCDate() + (ordinals[startDate.getUTCDate().toString().split('').pop()]) + " of " + months[startDate.getUTCMonth()];
 
-  output += " to ";
+  output += " to the ";
 
   output += endDate.getUTCDate() + (ordinals[endDate.getUTCDate().toString().split('').pop()]) + " of " + months[endDate.getUTCMonth()];
 
