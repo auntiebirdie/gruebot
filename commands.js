@@ -24,7 +24,7 @@ const commands = [{
     type: 1,
     permission: true
   }, {
-    id: "907692992058511370",
+    id: "800774317654540298",
     type: 1,
     permission: true
   }]
@@ -75,17 +75,20 @@ const commands = [{
         "required": true
       }]
     }],
-    default_permission: false,
-    permissions: [{
-      id: "922956415134470155",
-      type: 1,
-      permission: true
-    }, {
-      id: "907692992058511370",
-      type: 1,
-      permission: true
-    }]
+  }],
+  default_permission: false,
+  permissions: [{
+    id: "922956415134470155",
+    type: 1,
+    permission: true
+  }, {
+    id: "800774317654540298",
+    type: 1,
+    permission: true
   }]
+}, {
+  name: "spooky",
+  description: "ooOoOOoooOo",
 }];
 
 const headers = {
@@ -98,14 +101,16 @@ axios.put(
   `https://discord.com/api/v8/applications/${secrets.APPLICATION_ID}/commands`,
   commands,
   headers
-).then((response) => {
+).then(async (response) => {
   for (let command of response.data) {
     let cmd = commands.find((cmd) => cmd.name == command.name);
 
     if (cmd.permissions) {
-      axios.put(`https://discord.com/api/v8/applications/${secrets.APPLICATION_ID}/guilds/${secrets.GUILD_ID}/commands/${command.id}/permissions`, {
+      var res = await axios.put(`https://discord.com/api/v8/applications/${secrets.APPLICATION_ID}/guilds/${secrets.GUILD_ID}/commands/${command.id}/permissions`, {
         permissions: cmd.permissions
       }, headers);
+
+	    console.log(res.status);
     }
   }
 }).catch((err) => {

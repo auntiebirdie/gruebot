@@ -7,6 +7,7 @@
     "@google-cloud/scheduler": "^2.3.0",
     "axios": "^0.24.0",
     "discord.js": "^13.3.1",
+    "flickr-sdk": "^4.0.0",
     "js-yaml": "^4.1.0",
     "nodejs-microdb": "^0.0.2",
     "tweetnacl": "^1.0.3"
