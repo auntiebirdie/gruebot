@@ -238,7 +238,7 @@ module.exports = async function(interaction) {
 
   let rank = 1;
 
-  for (let i = 0, len = Math.min(10, users.length); i < len; i++) {
+  for (let i = 0, len = users.length; i < len; i++) {
     users[i].rank = rank;
 
     if (i < len - 1) {
