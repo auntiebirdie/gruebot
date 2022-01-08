@@ -69,12 +69,15 @@ module.exports = async function(interaction) {
       if (page > 0) {
         results.each((result) => {
           if (result.createdTimestamp <= endTimestamp && result.createdTimestamp >= startTimestamp) {
-            if (result.author.id == "735147814878969968" || (result.author.id == interaction.client.user.id && (result.content.includes('THE BUMP IS AVAILABLE ONCE MORE') || result.content.includes("the bump is coming")))) {
-              availableBumps.push(result.createdTimestamp);
+            if (result.author.id == "735147814878969968" && result.embeds?.length > 0 && result.embeds[0].title == "THE BUMP IS AVAILABLE ONCE MORE") {
+              availableBumps.push(result);
+            } else if (result.author.id == interaction.client.user.id && (result.content.includes('THE BUMP IS AVAILABLE ONCE MORE') || result.content.includes("the bump is coming"))) {
+              availableBumps.push(result);
             } else if (result.author.id == "302050872383242240" && result.embeds?.length > 0) {
               let id = availableBumps.length;
               let content = result.embeds[0].description;
               let user = content.match(/\<\@([0-9]+)\>/);
+              let bump = null;
 
               if (!bumps[id]) {
                 bumps[id] = [];
@@ -82,7 +85,7 @@ module.exports = async function(interaction) {
 
               if (content.includes('Bump done!')) {
                 if (user) {
-                  var bump = {
+                  bump = {
                     id: result.id,
                     user: user[1],
                     timestamp: result.createdTimestamp,
@@ -91,8 +94,6 @@ module.exports = async function(interaction) {
 
                   totalBumps++;
 
-                  bumps[id].push(bump);
-
                   if (bump.timestamp < firstBump[0]) {
                     firstBump = [bump.timestamp, bump.id];
                   }
@@ -100,20 +101,22 @@ module.exports = async function(interaction) {
                   if (bump.timestamp > lastBump[0]) {
                     lastBump = [bump.timestamp, bump.id];
                   }
+
+                  bumps[id].push(bump);
                 } else {
                   console.log('bump done but no user????', result);
                   throw err;
                 }
               } else if (content.includes("I'm handling your command! :rage:")) {
-                var bump = bumps[id][bumps[id].length - 1];
+                bump = bumps[id][bumps[id].length - 1];
 
                 // if they are less than 2 seconds apart
-                if (Math.abs(bump.timestamp - result.createdTimestamp) < 2000) {
+                if (bump && Math.abs(bump.timestamp - result.createdTimestamp) < 2000) {
                   bump.brokenDoubleBump = true;
                   brokenDoubleBump = bump.user;
                 }
               } else if (content.includes("Please wait another 120 minutes")) {
-                var bump = {
+                bump = {
                   id: result.id,
                   user: user[1],
                   timestamp: result.createdTimestamp,
@@ -122,7 +125,7 @@ module.exports = async function(interaction) {
 
                 bumps[id].push(bump);
               } else if (brokenDoubleBump && result.content.toLowerCase().trim() == '!d bump' && brokenDoubleBump != result.author.id) {
-                var bump = {
+                bump = {
                   id: result.id,
                   user: result.author.id,
                   timestamp: result.createdTimestamp,
@@ -130,9 +133,9 @@ module.exports = async function(interaction) {
                   brokenDoubleBump: true
                 };
 
-                bumps[id].push(bump);
-
                 brokenDoubleBump = null;
+
+                bumps[id].push(bump);
               }
             }
           }
@@ -147,13 +150,15 @@ module.exports = async function(interaction) {
 
   var auditLog = "";
 
-  for (let id = availableBumps.length - 1; id >= 0; id--) {
-    auditLog += `💀 ${new Date(availableBumps[id]).toUTCString()} 💀\r\n\r\n`
+  for (let num = availableBumps.length - 1; num >= 0; num--) {
+    auditLog += `💀 ${new Date(availableBumps[num].createdTimestamp).toUTCString()} 💀\r\n`
 
-    if (bumps[id] && bumps[id].length > 0) {
+    auditLog += `   https://discord.com/channels/${availableBumps[num].guild.id}/${availableBumps[num].channel.id}/${availableBumps[num].id}\r\n\r\n`;
+
+    if (bumps[num] && bumps[num].length > 0) {
       let selfDoubleBumped = false;
 
-      for (let bump of bumps[id]) {
+      for (let bump of bumps[num]) {
         var points = bump.success ? 1 : 0;
 
         if (!users[bump.user]) {
@@ -167,7 +172,7 @@ module.exports = async function(interaction) {
           };
         }
 
-        let successfulBumps = bumps[id].filter((bmp) => bmp.success);
+        let successfulBumps = bumps[num].filter((bmp) => bmp.success && Math.abs(bmp.timestamp - bump.timestamp) <= 10000);
 
         if (bump.success && successfulBumps.length > 1) {
           if (successfulBumps.filter((bmp) => bmp.user == bump.user).length > 1 && !selfDoubleBumped) {
@@ -254,6 +259,8 @@ module.exports = async function(interaction) {
   output += "The server has been bumped a total of " + totalBumps + " out of the " + availableBumps.length + " possible times, not including the exact hours of a day. Out of " + totalUsers + ", a total of " + Object.keys(users).length + " people participated.\r\n\r\n";
 
   output += "**Special point recipients this week were:**\r\n";
+
+  users.reverse();
 
   for (let id in users) {
     let user = users[id];
