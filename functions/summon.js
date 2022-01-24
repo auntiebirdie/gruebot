@@ -42,7 +42,7 @@ module.exports = async function(interaction) {
   } else {
     var endDate = new Date();
 
-    endDate.setDate(endDate.getDate() - 1);
+    endDate.setDate(endDate.getDate());
   }
 
   var startTimestamp = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), 0, 0, 0, 0);
@@ -105,7 +105,6 @@ module.exports = async function(interaction) {
                   bumps[id].push(bump);
                 } else {
                   console.log('bump done but no user????', result);
-                  throw err;
                 }
               } else if (content.includes("I'm handling your command! :rage:")) {
                 bump = bumps[id][bumps[id].length - 1];

@@ -63,7 +63,7 @@ client.on('messageCreate', async (message) => {
       }
     }
   } else if (message.channel.id == "788633174807805962" || message.channel.id == "788633095318405120") {
-    if (message.content.toLowerCase().includes("mock me")) {
+    if (message.content.toLowerCase().includes("mock me") || message.content.startsWith('?:')) {
       require(`./functions/mock.js`)(message);
     }
   }
