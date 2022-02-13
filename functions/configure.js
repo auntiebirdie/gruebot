@@ -19,18 +19,23 @@ module.exports = async function(interaction) {
       break;
     case "list":
       var mockeries = db.data;
+      response = "```";
 
       for (let id in mockeries) {
-        response += `\`${id}\`   ${db.data[id].text}\r\n`
+        response += `${id}   ${db.data[id].text}\r\n`;
 
         if (response.length > 500) {
+          response += "```";
+
           await interaction.followUp({
             content: response
           });
 
-          response = "";
+          response = "```";
         }
       }
+
+      response += "```";
       break;
     case "remove":
       var id = interaction.options.getString('id').trim();

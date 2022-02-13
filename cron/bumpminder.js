@@ -13,12 +13,12 @@ module.exports = function(req, res) {
   client.on('ready', () => {
     setTimeout(async function() {
       const channel = await client.channels.fetch("788633174807805962");
-	    console.log(channel);
-/*
+
       channel.send({
         content: '**better watch out, <@&926671218801774632>, the bump is coming**'
+      }).then( () => {
+	      process.exit(0);
       });
-      */
     }, Math.random() * 30000);
   });
 }

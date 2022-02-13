@@ -4,30 +4,32 @@ const fs = require('fs');
 
 const secrets = yaml.load(fs.readFileSync(`${__dirname}/secrets.yaml`, 'utf8'));
 
+const privilegedRoles = [
+  "790730007022403584", // Head Administrator
+  "785997517748961331", // Administrator
+  "789596793716604989", // Moderator
+  "933416538306916462", // HR-Bitches
+  "800774317654540298" // Tech Wizard
+].map((role) => {
+  return {
+    id: role,
+    type: 1,
+    permission: true
+  };
+});
+
 const commands = [{
   name: "summon",
   description: "Summon the grue.",
-  options: [{
-      "name": "start",
-      "description": "Start date defaults to last Saturday",
-      "type": 3
-    },
+  options: [
     {
-      "name": "end",
-      "description": "End date defaults to yesterday",
+      "name": "utc",
+      "description": "Defaults to +1",
       "type": 3
     }
   ],
   default_permission: false,
-  permissions: [{
-    id: "922956415134470155",
-    type: 1,
-    permission: true
-  }, {
-    id: "800774317654540298",
-    type: 1,
-    permission: true
-  }]
+  permissions: privilegedRoles
 }, {
   name: "configure",
   description: "Tell the grue what to do.",
@@ -77,15 +79,18 @@ const commands = [{
     }],
   }],
   default_permission: false,
-  permissions: [{
-    id: "922956415134470155",
-    type: 1,
-    permission: true
-  }, {
-    id: "800774317654540298",
-    type: 1,
-    permission: true
-  }]
+  permissions: privilegedRoles
+}, {
+  name: "echo",
+  description: "let me be your mouthpiece",
+  options: [{
+    name: "text",
+    description: "what do you want me to say?",
+    type: 3,
+    required: true
+  }],
+  default_permission: false,
+  permissions: privilegedRoles
 }, {
   name: "spooky",
   description: "ooOoOOoooOo",
@@ -110,7 +115,7 @@ axios.put(
         permissions: cmd.permissions
       }, headers);
 
-	    console.log(res.status);
+      console.log(res.status);
     }
   }
 }).catch((err) => {

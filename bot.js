@@ -24,11 +24,30 @@ client.login(secrets.BOT_TOKEN);
 
 client.on('interactionCreate', async (interaction) => {
   try {
-    await interaction.deferReply();
+    if (interaction.isMessageComponent()) {
+	    if (interaction.user.id != interaction.message.interaction.user.id) {
+		    return interaction.deferUpdate();
+	    }
 
-    require(`./functions/${interaction.commandName}.js`)(interaction);
+      let tmp = interaction.customId.split('_');
+      interaction.commandName = tmp.shift();
+      interaction.customId = tmp.join('_');
+    } else if (["echo"].includes(interaction.commandName)) {
+      await interaction.reply({
+        content: '😎',
+        ephemeral: true
+      });
+    } else {
+      await interaction.deferReply();
+    }
+
+    require(`./functions/${interaction.commandName}.js`)(interaction).catch( (err) => {
+	    interaction.followUp({
+		    content: '⚠️ ' + err.message
+	    });
+    });
   } catch (err) {
-    console.error(err);
+	  console.log(err);
   }
 });
 
@@ -61,10 +80,6 @@ client.on('messageCreate', async (message) => {
       if (Math.random() * 100 > 75) {
         require(`./functions/mock.js`)(message);
       }
-    }
-  } else if (message.channel.id == "788633174807805962" || message.channel.id == "788633095318405120") {
-    if (message.content.toLowerCase().includes("mock me") || message.content.startsWith('?:')) {
-      require(`./functions/mock.js`)(message);
     }
   }
 });
