@@ -2,44 +2,45 @@ const months = ["January", "February", "March", "April", "May", "June", "July", 
 const ordinals = ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"];
 
 module.exports = async function(interaction) {
+  var regex = /(\d{4})\-(\d{1,2})-(\d{1,2}) (\d{1,2}):\d{2} UTC([\+\-\d]+)/;
+
   if (interaction.customId) {
     var dates = {
-      startDate: new Date(interaction.message.components[4].components[0].label.replace('Start Date: ', '')),
-      endDate: new Date(interaction.message.components[4].components[1].label.replace('End Date: ', ''))
+      startDate: interaction.message.components[4].components[0].label.replace('Start Date: ', '').match(regex),
+      endDate: interaction.message.components[4].components[1].label.replace('End Date: ', '').match(regex)
     };
 
-	  var UTC = interaction.message.components[4].components[0].label.split('UTC').pop();
-
     if (interaction.customId == 'execute') {
-      return GRUETIME();
+      interaction.deferReply();
+      return GRUETIME(interaction, dates.startDate[5]);
     }
     if (interaction.customId == 'startDate') {
       var currentDate = 'startDate';
     } else if (interaction.customId == 'endDate') {
-      var currentDate = 'endDate';;
+      var currentDate = 'endDate';
     } else {
       var currentDate = interaction.message.components[4].components.find((component) => component.disabled).customId.split('_').pop();
     }
 
     switch (interaction.customId) {
       case 'year':
-        dates[currentDate].setUTCFullYear(interaction.values[0]);
+        dates[currentDate][1] = interaction.values[0];
         break;
       case 'month':
-        dates[currentDate].setUTCMonth(interaction.values[0]);
+        dates[currentDate][2] = interaction.values[0];
         break;
       case 'increaseDay':
-        dates[currentDate].setUTCDate(dates[currentDate].getUTCDate() + 1);
+        dates[currentDate][3] = Math.min(31, (dates[currentDate][3] * 1) + 1);
         break;
       case 'decreaseDay':
-        dates[currentDate].setUTCDate(dates[currentDate].getUTCDate() - 1);
+        dates[currentDate][3] = Math.max(1, (dates[currentDate][3] * 1) - 1);
         break;
       case 'hour':
-        dates[currentDate].setUTCHours(interaction.values[0]);
+        dates[currentDate][4] = interaction.values[0];
         break;
     }
   } else {
-	  var UTC = interaction.options.getString('utc') ? interaction.options.getString('utc') : '+1';
+    var UTC = interaction.options.getString('utc') ? interaction.options.getString('utc') : '+1';
 
     var dates = {
       startDate: new Date(new Date().toString() + UTC),
@@ -48,13 +49,16 @@ module.exports = async function(interaction) {
 
     var currentDate = 'startDate';
 
-    dates.startDate.setUTCHours(0);
+    dates.startDate.setHours(0);
     dates.startDate.setMinutes(0);
     dates.startDate.setSeconds(0);
 
-    dates.endDate.setUTCHours(23);
+    dates.endDate.setHours(23);
     dates.endDate.setMinutes(59);
     dates.endDate.setSeconds(59);
+
+    dates.startDate = (dates.startDate.getFullYear() + '-' + (dates.startDate.getMonth() + 1) + '-' + dates.startDate.getDate() + ' ' + dates.startDate.getHours() + ':00 UTC' + UTC).match(regex);
+    dates.endDate = (dates.endDate.getFullYear() + '-' + (dates.endDate.getMonth() + 1) + '-' + dates.endDate.getDate() + ' ' + dates.endDate.getHours() + ':59 UTC' + UTC).match(regex);
   }
 
   var response = {
@@ -66,13 +70,13 @@ module.exports = async function(interaction) {
           custom_id: 'summon_year',
           placeholder: 'Year',
           options: [{
-            label: String(new Date().getUTCFullYear()),
-            value: String(new Date().getUTCFullYear()),
-            default: dates[currentDate].getUTCFullYear() == new Date().getUTCFullYear()
+            label: String(new Date().getFullYear()),
+            value: String(new Date().getFullYear()),
+            default: dates[currentDate][1] == new Date().getFullYear()
           }, {
-            label: String(new Date().getUTCFullYear() - 1),
-            value: String(new Date().getUTCFullYear() - 1),
-            default: dates[currentDate].getUTCFullYear() == new Date().getUTCFullYear() - 1
+            label: String(new Date().getFullYear() - 1),
+            value: String(new Date().getFullYear() - 1),
+            default: dates[currentDate][1] == new Date().getFullYear() - 1
           }]
         }]
       },
@@ -83,10 +87,12 @@ module.exports = async function(interaction) {
           custom_id: 'summon_month',
           placeholder: 'Month',
           options: months.map((month, i) => {
+            let m = i + 1;
+
             return {
               label: month,
-              value: String(i),
-              default: i == dates[currentDate].getUTCMonth()
+              value: String(m),
+              default: m == dates[currentDate][2]
             };
           })
         }]
@@ -102,7 +108,7 @@ module.exports = async function(interaction) {
           type: 2,
           custom_id: 'summon_day',
           style: 1,
-          label: String(dates[currentDate].getUTCDate()),
+          label: String(dates[currentDate][3]),
           disabled: true
         }, {
           type: 2,
@@ -121,12 +127,12 @@ module.exports = async function(interaction) {
         components: [{
           type: 3,
           custom_id: 'summon_hour',
-          placeholder: 'Hour (UTC' + UTC + ')',
+          placeholder: 'Hour (UTC' + dates.startDate[5] + ')',
           options: Array(24).fill('').map((val, i) => {
             return {
               label: String(`${i}:${currentDate == 'startDate' ? '00' : '59'}`),
               value: String(i),
-              default: i == dates[currentDate].getUTCHours()
+              default: i == dates[currentDate][4]
             }
           })
         }]
@@ -136,13 +142,13 @@ module.exports = async function(interaction) {
           type: 2,
           custom_id: 'summon_startDate',
           style: currentDate == 'startDate' ? 1 : 2,
-          label: 'Start Date: ' + dates.startDate.getUTCFullYear() + '-' + (dates.startDate.getUTCMonth() + 1) + '-' + dates.startDate.getUTCDate() + ' ' + dates.startDate.getUTCHours() + ':00 UTC' + UTC,
+          label: 'Start Date: ' + dates.startDate[1] + '-' + dates.startDate[2] + '-' + dates.startDate[3] + ' ' + dates.startDate[4] + ':00 UTC' + dates.startDate[5],
           disabled: currentDate == 'startDate'
         }, {
           type: 2,
           custom_id: 'summon_endDate',
           style: currentDate == 'endDate' ? 1 : 2,
-          label: 'End Date: ' + dates.endDate.getUTCFullYear() + '-' + (dates.endDate.getUTCMonth() + 1) + '-' + dates.endDate.getUTCDate() + ' ' + dates.endDate.getUTCHours() + ':59 UTC' + UTC,
+          label: 'End Date: ' + dates.endDate[1] + '-' + dates.endDate[2] + '-' + dates.endDate[3] + ' ' + dates.endDate[4] + ':59 UTC' + dates.endDate[5],
           disabled: currentDate == 'endDate'
         }, {
           type: 2,
@@ -160,7 +166,7 @@ module.exports = async function(interaction) {
     interaction.editReply(response);
   }
 
-  async function GRUETIME() {
+  async function GRUETIME(interaction, UTC) {
     var totalUsers = 0;
 
     var afterId = null;
@@ -188,8 +194,8 @@ module.exports = async function(interaction) {
 
     const channel = await interaction.guild.channels.fetch("788633174807805962");
 
-    var startTimestamp = dates.startDate.getTime();
-    var endTimestamp = dates.endDate.getTime();
+    var startTimestamp = new Date(dates.startDate[0]).getTime();
+    var endTimestamp = new Date(dates.endDate[0]).getTime();
 
     var availableBumps = [];
     var bumps = [];
@@ -245,7 +251,26 @@ module.exports = async function(interaction) {
                       lastBump = [bump.timestamp, bump.id];
                     }
 
-                    bumps[id].push(bump);
+                    if (availableBumps[id - 1]) {
+                      let quickBumpCheck = {
+                        hours: new Date(availableBumps[id - 1].createdTimestamp).getHours() == new Date(bump.timestamp).getHours(),
+                        minutes: new Date(availableBumps[id - 1].createdTimestamp).getMinutes() == new Date(bump.timestamp).getMinutes()
+                      };
+
+                      if (quickBumpCheck.hours && quickBumpCheck.minutes && bump.timestamp < availableBumps[id - 1].createdTimestamp) {
+                        bump.quickBump = true;
+
+                        if (!bumps[id - 1]) {
+                          bumps[id - 1] = [];
+                        }
+
+                        bumps[id - 1].push(bump);
+                      } else {
+                        bumps[id].push(bump);
+                      }
+                    } else {
+                      bumps[id].push(bump);
+                    }
                   } else {
                     console.log('bump done but no user????', result);
                   }
@@ -288,13 +313,16 @@ module.exports = async function(interaction) {
         }
       });
     }
-
     while (page > 0 && lastTimestamp >= startTimestamp);
 
     var auditLog = "";
 
     for (let num = availableBumps.length - 1; num >= 0; num--) {
-      auditLog += `💀 ${new Date(availableBumps[num].createdTimestamp).toUTCString()} 💀\r\n`
+      let bumpDate = new Date(availableBumps[num].createdTimestamp);
+
+	    bumpDate.setHours(bumpDate.getHours() + (UTC * 1));
+
+      auditLog += `💀 ${bumpDate.toUTCString()}${UTC}  💀\r\n`
 
       auditLog += `   https://discord.com/channels/${availableBumps[num].guild.id}/${availableBumps[num].channel.id}/${availableBumps[num].id}\r\n\r\n`;
 
@@ -311,6 +339,7 @@ module.exports = async function(interaction) {
               doubleBumps: 0,
               selfDoubleBumps: 0,
               brokenDoubleBumps: 0,
+              quickBumps: 0,
               achievements: []
             };
           }
@@ -328,6 +357,10 @@ module.exports = async function(interaction) {
               users[bump.user].doubleBumps++;
               auditLog += `@<${bump.user}> achieved a double bump!\r\n   +2 points\r\n`;
             }
+          } else if (bump.quickBump) {
+            points = 2;
+            users[bump.user].quickBumps++;
+            auditLog += `@<${bump.user}> quick bumped!\r\n   +2 points\r\n`;
           } else if (bump.brokenDoubleBump) {
             points = 5;
             users[bump.user].brokenDoubleBumps++;
@@ -359,11 +392,11 @@ module.exports = async function(interaction) {
 
     var output = "Since the ";
 
-    output += dates.startDate.getUTCDate() + (ordinals[dates.startDate.getUTCDate().toString().split('').pop()]) + " of " + months[dates.startDate.getUTCMonth()] + " " + ("0"+dates.startDate.getUTCHours()).slice(-2) + ":" + ("0"+dates.startDate.getUTCMinutes()).slice(-2);
+    output += dates.startDate[3] + (ordinals[dates.startDate[3].toString().split('').pop()]) + " of " + months[dates.startDate[2] - 1] + " " + ("0" + dates.startDate[4]).slice(-2) + ":00";
 
     output += " to the ";
 
-    output += dates.endDate.getUTCDate() + (ordinals[dates.endDate.getUTCDate().toString().split('').pop()]) + " of " + months[dates.endDate.getUTCMonth()] + " " + ("0"+dates.endDate.getUTCHours()).slice(-2) + ":" + ("0"+dates.endDate.getUTCMinutes()).slice(-2);
+    output += dates.endDate[3] + (ordinals[dates.endDate[3].toString().split('').pop()]) + " of " + months[dates.endDate[2] - 1] + " " + ("0" + dates.endDate[4]).slice(-2) + ":59";
 
     output += "\r\n\r\n";
 
@@ -408,6 +441,10 @@ module.exports = async function(interaction) {
     for (let id in users) {
       let user = users[id];
 
+      if (user.quickBumps > 0) {
+        user.achievements.push(user.quickBumps + ' quick bumps');
+      }
+
       if (user.doubleBumps > 0) {
         user.achievements.push(user.doubleBumps + ' double bumps');
       }
@@ -425,7 +462,7 @@ module.exports = async function(interaction) {
       }
     }
 
-    interaction.update({
+    interaction.editReply({
       content: output,
       components: [],
       files: [{
