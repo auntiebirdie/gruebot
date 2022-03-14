@@ -218,14 +218,12 @@ module.exports = async function(interaction) {
         if (page > 0) {
           results.each((result) => {
             if (result.createdTimestamp <= endTimestamp && result.createdTimestamp >= startTimestamp) {
-              if (result.author.id == "735147814878969968" && result.embeds?.length > 0 && result.embeds[0].title == "THE BUMP IS AVAILABLE ONCE MORE") {
-                availableBumps.push(result);
-              } else if (result.author.id == interaction.client.user.id && (result.content.includes('THE BUMP IS AVAILABLE ONCE MORE') || result.content.includes("the bump is coming"))) {
+              if (result.author.id == interaction.client.user.id && (result.content.includes('THE BUMP IS AVAILABLE ONCE MORE') || result.content.includes("the bump is coming"))) {
                 availableBumps.push(result);
               } else if (result.author.id == "302050872383242240" && result.embeds?.length > 0) {
                 let id = availableBumps.length;
                 let content = result.embeds[0].description;
-                let user = content.match(/\<\@([0-9]+)\>/);
+                let user = result.interaction ? result.interaction.user.id : content.match(/\<\@([0-9]+)\>/)[1];
                 let bump = null;
 
                 if (!bumps[id]) {
@@ -236,7 +234,7 @@ module.exports = async function(interaction) {
                   if (user) {
                     bump = {
                       id: result.id,
-                      user: user[1],
+                      user: user,
                       timestamp: result.createdTimestamp,
                       success: true
                     };
@@ -335,6 +333,7 @@ module.exports = async function(interaction) {
           if (!users[bump.user]) {
             users[bump.user] = {
               id: bump.user,
+	      displayName: `<@${bump.user}>`,
               points: 0,
               doubleBumps: 0,
               selfDoubleBumps: 0,
@@ -407,6 +406,8 @@ module.exports = async function(interaction) {
         auditLog = auditLog.replace(new RegExp('@<' + user[0] + '>', 'g'), member.displayName);
 
         return user[1];
+      }).catch( (err) => {
+	      return user[1];
       });
     }));
 
