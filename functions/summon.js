@@ -293,7 +293,7 @@ module.exports = async function(interaction) {
                   };
 
                   bumps[id].push(bump);
-                } else if (brokenDoubleBump && result.content.toLowerCase().trim() == '!d bump' && brokenDoubleBump != result.author.id) {
+                } else if (brokenDoubleBump && (result.interaction || result.content.toLowerCase().trim() == '!d bump') && brokenDoubleBump != (result.interaction?.user.id || result.author.id)) {
                   bump = {
                     id: result.id,
                     user: result.author.id,
