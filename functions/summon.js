@@ -223,8 +223,12 @@ module.exports = async function(interaction) {
               } else if (result.author.id == "302050872383242240" && result.embeds?.length > 0) {
                 let id = availableBumps.length;
                 let content = result.embeds[0].description;
-                let user = result.interaction ? result.interaction.user.id : content.match(/\<\@([0-9]+)\>/)[1];
+                let user = null;
                 let bump = null;
+
+                try {
+                  user = result.interaction ? result.interaction.user.id : content.match(/\<\@([0-9]+)\>/)[1];
+                } catch (err) {}
 
                 if (!bumps[id]) {
                   bumps[id] = [];
@@ -318,7 +322,7 @@ module.exports = async function(interaction) {
     for (let num = availableBumps.length - 1; num >= 0; num--) {
       let bumpDate = new Date(availableBumps[num].createdTimestamp);
 
-	    bumpDate.setHours(bumpDate.getHours() + (UTC * 1));
+      bumpDate.setHours(bumpDate.getHours() + (UTC * 1));
 
       auditLog += `💀 ${bumpDate.toUTCString()}${UTC}  💀\r\n`
 
@@ -333,7 +337,7 @@ module.exports = async function(interaction) {
           if (!users[bump.user]) {
             users[bump.user] = {
               id: bump.user,
-	      displayName: `<@${bump.user}>`,
+              displayName: `<@${bump.user}>`,
               points: 0,
               doubleBumps: 0,
               selfDoubleBumps: 0,
@@ -361,7 +365,7 @@ module.exports = async function(interaction) {
             users[bump.user].quickBumps++;
             auditLog += `@<${bump.user}> quick bumped!\r\n   +2 points\r\n`;
           } else if (bump.brokenDoubleBump) {
-            points = 5;
+            points = 4;
             users[bump.user].brokenDoubleBumps++;
             auditLog += `@<${bump.user}> broke a double bump!\r\n   +5 points\r\n`;
           } else if (bump.success) {
@@ -406,8 +410,8 @@ module.exports = async function(interaction) {
         auditLog = auditLog.replace(new RegExp('@<' + user[0] + '>', 'g'), member.displayName);
 
         return user[1];
-      }).catch( (err) => {
-	      return user[1];
+      }).catch((err) => {
+        return user[1];
       });
     }));
 

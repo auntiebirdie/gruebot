@@ -42,6 +42,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     require(`./functions/${interaction.commandName}.js`)(interaction).catch( (err) => {
+	    console.log(err);
 	    interaction.followUp({
 		    content: '⚠️ ' + err.message
 	    });
